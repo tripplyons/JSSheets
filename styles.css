@@ -1,0 +1,16 @@
+html {
+	background-color: #34495e;
+	color: #ecf0f1;
+}
+
+body {
+	width: 75%;
+	margin: 0 auto;
+	text-align: center;
+	font-family: sans-serif;
+}
+
+code {
+	background-color: #f7f7f7;
+	color: #000000;
+}
