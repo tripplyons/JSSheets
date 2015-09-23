@@ -1,5 +1,3 @@
-// TODO: Get example to work
-
 var funcs = {
 	"ADD": function (params) {
 		if (params.length === 0) return null;
