@@ -2,58 +2,58 @@
 
 var funcs = {
 	"ADD": function (params) {
-		if (params.length == 0) return null;
+		if (params.length === 0) return null;
 		if (params.indexOf(null) != -1) {
 			return null;
 		}
 		var val = 0;
 		for (var i = 0; i < params.length; i++) {
-			val += parseInt(params[i])
+			val += parseInt(params[i]);
 		}
 		return val;
 	},
 	"SUB": function (params) {
-		if (params.length == 0) return null;
+		if (params.length === 0) return null;
 		if (params.indexOf(null) != -1) {
 			return null;
 		}
 		var val = parseInt(params[0]) - parseInt(params[1]);
 		for (var i = 2; i < params.length; i++) {
-			val -= parseInt(params[i])
+			val -= parseInt(params[i]);
 		}
 		return val;
 	},
 	"MUL": function (params) {
-		if (params.length == 0) return null;
+		if (params.length === 0) return null;
 		if (params.indexOf(null) != -1) {
 			return null;
 		}
 		var val = parseInt(params[0]);
 		for (var i = 1; i < params.length; i++) {
-			val *= parseInt(params[i])
+			val *= parseInt(params[i]);
 		}
 		return val;
 	},
 	"DIV": function (params) {
-		if (params.length == 0) return null;
+		if (params.length === 0) return null;
 		if (params.indexOf(null) != -1) {
 			return null;
 		}
 
-		if (parseInt(params[1]) == 0) return null;
+		if (parseInt(params[1]) === 0) return null;
 		var val = parseInt(params[0]) / parseInt(params[1]);
 		for (var i = 2; i < params.length; i++) {
-			if (parseInt(params[i]) == 0) return null;
+			if (parseInt(params[i]) === 0) return null;
 			val /= parseInt(params[i]);
 		}
 		return Math.floor(val);
 	},
 	"MOD": function (params) {
-		if (params.length == 0) return null;
+		if (params.length === 0) return null;
 		if (params.indexOf(null) != -1) {
 			return null;
 		}
-		return (parseInt(params[1]) == 0) ? null : parseInt(params[0]) % parseInt(params[1]);
+		return (parseInt(params[1]) === 0) ? null : parseInt(params[0]) % parseInt(params[1]);
 	},
 	"IF": function (params) {
 		if (params.length != 1) return null;
@@ -118,9 +118,9 @@ function example() {
 	cellEquations[0 * gridWidth + 4] = "#TOTAL";
 	cellEquations[0 * gridWidth + 5] = "#G TOTAL";
 	for (var i = 1; i < gridHeight; i++) {
-		cellEquations[i * gridWidth + 4] = "=MUL(C" + i.toString() +" D" + i.toString() +")";
+		cellEquations[i * gridWidth + 4] = "=MUL(C" + i.toString() + " D" + i.toString() + ")";
 	}
-	cellEquations[1 * gridWidth + 5] = "=MUL(E1:E13)";
+	cellEquations[1 * gridWidth + 5] = "=SUM(E1:E13)";
 	selectedCellX = 0;
 	selectedCellY = 0;
 	cursorX = cellEquations[0].length;
@@ -141,14 +141,14 @@ function draw() {
 		ctx.strokeRect((i + 1) * cellWidth, cellHeight, cellWidth, cellHeight);
 		ctx.fillText(alphabet.charAt(i), (i + 1) * cellWidth + 5, cellHeight * 2 - 5);
 	}
-	for (var i = 0; i < gridHeight; i++) {
+	for (i = 0; i < gridHeight; i++) {
 		ctx.strokeRect(0, (i + 2) * cellHeight, cellWidth, cellHeight);
 		ctx.fillText(i, 5, (i + 3) * cellHeight - 5);
 	}
 
 	ctx.fillStyle = "#000000";
 	ctx.fillText(alphabet.charAt(selectedCellX) + selectedCellY, 5, cellHeight * (2 - 5));
-	ctx.fillText("JSSheets", 5, cellHeight * 2 - 5)
+	ctx.fillText("JSSheets", 5, cellHeight * 2 - 5);
 	ctx.fillText(cellEquations[selectedCellY * gridWidth + selectedCellX], cellWidth + 5, (1) * cellHeight - 5);
 
 	for (var row = 0; row < gridHeight; row++) {
@@ -161,7 +161,7 @@ function draw() {
 				ctx.strokeRect((col + 1) * cellWidth, (row + 2) * cellHeight, cellWidth, cellHeight);
 			}
 			ctx.fillStyle = "#000000";
-			var cellValue = (solveCell(cellEquations[row * gridWidth + col], row * gridWidth + col, []) != null) ?
+			var cellValue = (solveCell(cellEquations[row * gridWidth + col], row * gridWidth + col, []) !== null) ?
 				solveCell(cellEquations[row * gridWidth + col], row * gridWidth + col, []) :
 				"ERROR";
 			if (cellValue.toString().length > 7) {
@@ -176,7 +176,7 @@ function draw() {
 	ctx.strokeRect(0, cellHeight, cellWidth, cellHeight);
 
 	ctx.fillStyle = "#000000";
-	ctx.fillRect(cellWidth + 5 + charWidth * (cursorX), (0) * cellHeight + 5, 2, cellHeight - 10)
+	ctx.fillRect(cellWidth + 5 + charWidth * (cursorX), (0) * cellHeight + 5, 2, cellHeight - 10);
 }
 
 function isANumber(testingData) {
@@ -224,10 +224,6 @@ function isSemiValidEquation(testingData) {
 
 // cellReferences: the cells evaluated before this function was called to prevent an infinite loop
 function solveEquation(equation, thisCell, cellReferences) {
-	if (cellReferences.indexOf(thisCell) != -1) {
-		return null;
-	}
-	cellReferences.push(thisCell);
 	var params = [];
 	var eqName = "";
 	var i;
@@ -248,11 +244,13 @@ function solveEquation(equation, thisCell, cellReferences) {
 		params.push(buffer);
 		i++;
 	}
+
 	var cellArray = /^[A-Z]+\d+\:[A-Z]+\d+$/; // F8:H10
 	var cell = /^[A-Z]+\d+$/; // A0, D6
 	var num = /^-?\d+$/; // 0, -768
 	for (var j = 0; j < params.length; j++) {
-		console.log(params[j].toString()+":");
+		params[j] = params[j].toString();
+		console.log(params[j] + ":");
 		if (params[j].match(cellArray)) {
 			console.log("cell array");
 			var startCol = alphabet.indexOf(params[j][0]);
@@ -289,7 +287,7 @@ function solveEquation(equation, thisCell, cellReferences) {
 					params.push(solveCell(getCell(currentRow * gridWidth + startCol), currentRow * gridWidth + startCol, cellReferences));
 				}
 			} else {
-				console.log("2D array")
+				console.log("2D array");
 				for (var currentRow = startRow; currentRow <= endRow; currentRow++) {
 					for (var currentCol = startCol; currentCol <= endCol; currentCol++) {
 						console.log(currentCol + ", " + currentRow);
@@ -309,19 +307,26 @@ function solveEquation(equation, thisCell, cellReferences) {
 		}
 	}
 
-	console.log(params);
+	// console.log(params);
 	var func = funcs[eqName];
 	// console.log(func);
 	var value = (func) ? func(params) : null;
 
-	return (value != null) ? value : null;
+	return (value !== null) ? value : null;
 }
 
 function solveCell(equation, thisCell, cellReferences) {
+	if (typeof (cellReferences) == 'undefined') cellReferences = [];
+	if (cellReferences.indexOf(thisCell) != -1) {
+		return null;
+	}
+	cellReferences.push(thisCell);
 	if (isANumber(equation)) {
 		return equation;
 	} else if (equation.charAt(0) == "#") {
 		return equation.substring(1, equation.length);
+	} else if (equation.charAt(0) == "=" && equation.substring(1, equation.length).match(/^[A-Z]+\d+$/)) {
+		return solveCell(getCell(parseInt(equation.substring(2, equation.length)) * gridWidth + alphabet.indexOf(equation.charAt(1)), parseInt(equation.substring(2, equation.length)) * gridWidth + alphabet.indexOf(equation.charAt(1)), cellReferences));
 	} else if (isSemiValidEquation(equation)) {
 		return solveEquation(equation, thisCell, cellReferences);
 	} else {
@@ -346,7 +351,7 @@ function click(e) {
 	x -= c.offsetLeft;
 	y -= c.offsetTop;
 	console.log("(" + x.toString() + ", " + y.toString() + ")");
-	if (x >= cellWidth && y >= cellHeight * 2 && y <= cellHeight * (gridHeight+2)) {
+	if (x >= cellWidth && y >= cellHeight * 2 && y <= cellHeight * (gridHeight + 2)) {
 		selectedCellX = Math.floor(x / cellWidth) - 1;
 		selectedCellY = Math.floor(y / cellHeight) - 2;
 	}
@@ -362,15 +367,13 @@ function getCell(cellArrIndex) {
 }
 
 function setCell(cellArrIndex, value) {
-	if (cellArrIndex > cellEquations.length) {
-		return;
-	} else {
+	if (!(cellArrIndex > cellEquations.length)) {
 		cellEquations[cellArrIndex] = value;
 	}
 }
 
 function setSelectedCell(value) {
-	cellEquations[selectedCellY * gridWidth + selectedCellX] = value
+	cellEquations[selectedCellY * gridWidth + selectedCellX] = value;
 }
 
 function getSelectedCell() {
@@ -402,23 +405,24 @@ function getChar(keyCode) {
 }
 
 function keydown(e) {
-	var charCode = (typeof event.which == "undefined") ? event.charCode : event.which;
+	var charCode = (typeof e.which == "undefined") ? e.charCode : e.which;
 	if (charCode == 16) {
 		shiftDown = true;
 	}
-	console.log("key down");
+	// console.log("key down");
 	if (e.keyCode == 8 || e.keyCode == 46) {
+		e.preventDefault();
 		console.log("delete/backspace down");
 		var selectedCellValue = getSelectedCell();
 		setSelectedCell(selectedCellValue.substring(0, cursorX - 1) + selectedCellValue.substring(cursorX, selectedCellValue.length));
-		if (getSelectedCell() == "") {
+		if (getSelectedCell() === "") {
 			setSelectedCell("0");
 		} else {
 			cursorX -= 1;
 		}
 		draw();
 	} else if (alphabet.indexOf(String.fromCharCode(charCode)) != -1 || getChar(charCode)) {
-		console.log(charCode + " down");
+		// console.log(charCode + " down");
 		if (getSelectedCell() == "0") {
 			setSelectedCell(getChar(charCode));
 		} else {
@@ -439,7 +443,7 @@ function keydown(e) {
 }
 
 function keyup(e) {
-	var charCode = (typeof event.which == "undefined") ? event.charCode : event.which;
+	var charCode = (typeof e.which == "undefined") ? e.charCode : e.which;
 	if (charCode == 16) {
 		shiftDown = false;
 	}
