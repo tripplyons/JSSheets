@@ -1,7 +1,7 @@
 var funcs = {
 	"ADD": function (params) {
 		if (params.length === 0) return null;
-		if (params.indexOf(null) != -1) {
+		if (params.indexOf(null) !== -1) {
 			return null;
 		}
 		var val = 0;
@@ -12,7 +12,7 @@ var funcs = {
 	},
 	"SUB": function (params) {
 		if (params.length === 0) return null;
-		if (params.indexOf(null) != -1) {
+		if (params.indexOf(null) !== -1) {
 			return null;
 		}
 		var val = parseInt(params[0]) - parseInt(params[1]);
@@ -23,7 +23,7 @@ var funcs = {
 	},
 	"MUL": function (params) {
 		if (params.length === 0) return null;
-		if (params.indexOf(null) != -1) {
+		if (params.indexOf(null) !== -1) {
 			return null;
 		}
 		var val = parseInt(params[0]);
@@ -34,7 +34,7 @@ var funcs = {
 	},
 	"DIV": function (params) {
 		if (params.length === 0) return null;
-		if (params.indexOf(null) != -1) {
+		if (params.indexOf(null) !== -1) {
 			return null;
 		}
 
@@ -48,23 +48,24 @@ var funcs = {
 	},
 	"MOD": function (params) {
 		if (params.length === 0) return null;
-		if (params.indexOf(null) != -1) {
+		if (params.indexOf(null) !== -1) {
 			return null;
 		}
 		return (parseInt(params[1]) === 0) ? null : parseInt(params[0]) % parseInt(params[1]);
 	},
 	"IF": function (params) {
-		if (params.length != 1) return null;
+		if (params.length !== 1) return null;
 		return (parseInt(params[0])) ? 1 : 0;
 	},
 	"NOT": function (params) {
-		if (params.length != 1) return null;
+		if (params.length !== 1) return null;
 		return (parseInt(params[0])) ? 0 : 1;
 	}
 };
 funcs["SUM"] = funcs["ADD"];
 
 var shiftDown = false;
+var ctrlDown = false;
 
 var c = document.getElementById("canvas");
 c.addEventListener("click", click);
@@ -91,6 +92,8 @@ var cursorX;
 var cellEquations = [];
 var alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 var digits = "0123456789";
+
+var clipboardCellIndex = null;
 
 init();
 draw();
@@ -178,11 +181,11 @@ function draw() {
 }
 
 function isANumber(testingData) {
-	if (testingData.charAt(0) == '-' && testingData.length == 1) {
+	if (testingData.charAt(0) === '-' && testingData.length === 1) {
 		return null;
 	}
-	for (var i = (testingData.charAt(0) == '-') ? 1 : 0; i < testingData.length; i++) {
-		if (digits.indexOf(testingData.charAt(i)) == -1) {
+	for (var i = (testingData.charAt(0) === '-') ? 1 : 0; i < testingData.length; i++) {
+		if (digits.indexOf(testingData.charAt(i)) === -1) {
 			return false;
 		}
 	}
@@ -195,22 +198,22 @@ function isSemiValidEquation(testingData) {
 		return false;
 	}
 
-	if (testingData.charAt(0) != "=") {
+	if (testingData.charAt(0) !== "=") {
 		return false;
 	}
 
-	if (testingData.charAt(1) == "(") {
+	if (testingData.charAt(1) === "(") {
 		return false;
 	}
 
 	var i;
-	for (i = 2; testingData.charAt(i) != "(" && i < testingData.length; i++);
-	if (i == testingData.length) {
+	for (i = 2; testingData.charAt(i) !== "(" && i < testingData.length; i++);
+	if (i === testingData.length) {
 		return false;
 	}
 
-	while (testingData.charAt(i) != ")" && i < testingData.length) { i++; }
-	if (i == testingData.length && testingData.charAt(i) != ")") {
+	while (testingData.charAt(i) !== ")" && i < testingData.length) { i++; }
+	if (i === testingData.length && testingData.charAt(i) !== ")") {
 		return false;
 	}
 	if (i != testingData.length - 1) {
@@ -225,16 +228,16 @@ function solveEquation(equation, thisCell, cellReferences) {
 	var params = [];
 	var eqName = "";
 	var i;
-	for (i = 1; i < equation.length && equation.charAt(i) != "("; i++) {
+	for (i = 1; i < equation.length && equation.charAt(i) !== "("; i++) {
 		eqName += equation.charAt(i);
 	}
 
-	for (i = 2; i < equation.length && equation.charAt(i) != "("; i++);
+	for (i = 2; i < equation.length && equation.charAt(i) !== "("; i++);
 	i++;
 
-	while (i < equation.length && equation.charAt(i) != ")") {
+	while (i < equation.length && equation.charAt(i) !== ")") {
 		var buffer = "";
-		while (i < equation.length && equation.charAt(i) != " " && equation.charAt(i) != ")") {
+		while (i < equation.length && equation.charAt(i) !== " " && equation.charAt(i) !== ")") {
 			buffer += equation.charAt(i);
 			i++;
 		}
@@ -254,7 +257,7 @@ function solveEquation(equation, thisCell, cellReferences) {
 			var startCol = alphabet.indexOf(params[j][0]);
 			var startRowStr = "";
 			var ii;
-			for (ii = 1; ii < params[j].length && params[j][ii] != ':'; ii++) {
+			for (ii = 1; ii < params[j].length && params[j][ii] !== ':'; ii++) {
 				startRowStr += params[j][ii];
 			}
 			var startRow = parseInt(startRowStr);
@@ -314,16 +317,16 @@ function solveEquation(equation, thisCell, cellReferences) {
 }
 
 function solveCell(equation, thisCell, cellReferences) {
-	if (typeof (cellReferences) == 'undefined') cellReferences = [];
+	if (typeof (cellReferences) === 'undefined') cellReferences = [];
 	if (cellReferences.indexOf(thisCell) != -1) {
 		return null;
 	}
 	cellReferences.push(thisCell);
 	if (isANumber(equation)) {
 		return equation;
-	} else if (equation.charAt(0) == "#") {
+	} else if (equation.charAt(0) === "#") {
 		return equation.substring(1, equation.length);
-	} else if (equation.charAt(0) == "=" && equation.substring(1, equation.length).match(/^[A-Z]+\d+$/)) {
+	} else if (equation.charAt(0) === "=" && equation.substring(1, equation.length).match(/^[A-Z]+\d+$/)) {
 		return solveCell(getCell(parseInt(equation.substring(2, equation.length)) * gridWidth + alphabet.indexOf(equation.charAt(1)), parseInt(equation.substring(2, equation.length)) * gridWidth + alphabet.indexOf(equation.charAt(1)), cellReferences));
 	} else if (isSemiValidEquation(equation)) {
 		return solveEquation(equation, thisCell, cellReferences);
@@ -404,11 +407,14 @@ function getChar(keyCode) {
 
 function keydown(e) {
 	var charCode = (typeof e.which == "undefined") ? e.charCode : e.which;
-	if (charCode == 16) {
+	if (charCode === 16) {
 		shiftDown = true;
 	}
+	if (charCode === 17) {
+		ctrlDown = true;
+	}
 	// console.log("key down");
-	if (e.keyCode == 8 || e.keyCode == 46) {
+	if (e.keyCode === 8 || e.keyCode === 46) {
 		e.preventDefault();
 		console.log("delete/backspace down");
 		var selectedCellValue = getSelectedCell();
@@ -419,19 +425,60 @@ function keydown(e) {
 			cursorX -= 1;
 		}
 		draw();
+	} else if(ctrlDown && charCode === 67) { // CTRL-C
+		clipboardCellIndex = selectedCellX+selectedCellY*gridWidth;
+		draw();
+	} else if(ctrlDown && charCode === 86) { // CTRL-V
+		var params = [];
+		var eq = getCell(clipboardCellIndex);
+		var eqName = "";
+		var i;
+		for (i = 1; i < eq.length && eq.charAt(i) !== "("; i++) {
+			eqName += eq.charAt(i);
+		}
+	
+		for (i = 2; i < eq.length && eq.charAt(i) !== "("; i++);
+		i++;
+	
+		while (i < eq.length && eq.charAt(i) !== ")") {
+			var buffer = "";
+			while (i < eq.length && eq.charAt(i) !== " " && eq.charAt(i) !== ")") {
+				buffer += eq.charAt(i);
+				i++;
+			}
+			// console.log(buffer);
+			params.push(buffer);
+			i++;
+		}
+		
+		var xDistance = selectedCellX-Math.floor(clipboardCellIndex/gridWidth);
+		var yDistance = selectedCellX-clipboardCellIndex%gridWidth;
+		
+		var newEq = eqName+"(";
+		for(var j=0; j<params.length; j++) {
+			if(params[j].match(/^[A-Z]+\d+$/)) {
+				newEq += _______;
+			}
+		}
+		newEq = newEq.substr(0, newEq.length-1);
+		
+		setSelectedCell(newEq);
+		
+		cursorX = getSelectedCell().length;
+		draw();
 	} else if (alphabet.indexOf(String.fromCharCode(charCode)) != -1 || getChar(charCode)) {
 		// console.log(charCode + " down");
-		if (getSelectedCell() == "0") {
+		if (getSelectedCell() === "0") {
 			setSelectedCell(getChar(charCode));
 		} else {
 			setSelectedCell(getSelectedCell().substring(0, cursorX) + getChar(charCode) + getSelectedCell().substring(cursorX, getSelectedCell().length));
 			cursorX += 1;
 		}
 		draw();
-	} else if (charCode == 37) {
+	} else if (charCode === 37) {
 		cursorX -= 1;
 		draw();
-	} else if (charCode == 39) {
+	} else if (charCode === 39) {
 		cursorX += 1;
 		if (cursorX > getSelectedCell().length) {
 			cursorX = getSelectedCell().length;
@@ -442,8 +489,11 @@ function keydown(e) {
 
 function keyup(e) {
 	var charCode = (typeof e.which == "undefined") ? e.charCode : e.which;
-	if (charCode == 16) {
+	if (charCode === 16) {
 		shiftDown = false;
+	}
+	if (charCode === 18) {
+		ctrlDown = false;
 	}
 }
 
