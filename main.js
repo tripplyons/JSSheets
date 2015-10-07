@@ -168,7 +168,12 @@ function draw() {
 			if (cellValue.toString().length > 7) {
 				cellValue = cellValue.toString().substring(0, 7) + "_";
 			}
-			ctx.fillText(cellValue, (col + 1) * cellWidth + 5, (row + 3) * cellHeight - 5);
+			if (cellEquations[row * gridWidth + col].charAt(0) == "#") {	
+				ctx.fillStyle = "#2980b9";
+				ctx.fillText(cellValue, (col + 1) * cellWidth + 5, (row + 3) * cellHeight - 5);
+			} else {
+				ctx.fillText(cellValue, (col + 1) * cellWidth + 5, (row + 3) * cellHeight - 5);
+			}
 		}
 	}
 
@@ -241,7 +246,6 @@ function solveEquation(equation, thisCell, cellReferences) {
 			buffer += equation.charAt(i);
 			i++;
 		}
-		// console.log(buffer);
 		params.push(buffer);
 		i++;
 	}
@@ -251,9 +255,7 @@ function solveEquation(equation, thisCell, cellReferences) {
 	var num = /^-?\d+$/; // 0, -768
 	for (var j = 0; j < params.length; j++) {
 		params[j] = params[j].toString();
-		console.log(params[j] + ":");
 		if (params[j].match(cellArray)) {
-			console.log("cell array");
 			var startCol = alphabet.indexOf(params[j][0]);
 			var startRowStr = "";
 			var ii;
@@ -269,37 +271,26 @@ function solveEquation(equation, thisCell, cellReferences) {
 			}
 			var endRow = parseInt(endRowStr);
 
-			console.log(alphabet[startCol] + " " + startRow + " : " + alphabet[endCol] + " " + endRow);
 			params.pop();
 			if (startRow == endRow && startCol == endCol) {
-				console.log("0D array of 1");
-				console.log(startCol + ", " + startRow);
 				params.push(solveCell(getCell(startRow * gridWidth + startCol), startRow * gridWidth + startCol, cellReferences));
 			} else if (startRow == endRow) {
-				console.log("1D horizontal array");
 				for (var currentCol = startCol; currentCol <= endCol; currentCol++) {
-					console.log(currentCol + ", " + startRow);
 					params.push(solveCell(getCell(startRow * gridWidth + currentCol), startRow * gridWidth + currentCol, cellReferences));
 				}
 			} else if (startCol == endCol) {
-				console.log("1D vertical array");
 				for (var currentRow = startRow; currentRow <= endRow; currentRow++) {
-					console.log(startCol + ", " + currentRow);
 					params.push(solveCell(getCell(currentRow * gridWidth + startCol), currentRow * gridWidth + startCol, cellReferences));
 				}
 			} else {
-				console.log("2D array");
 				for (var currentRow = startRow; currentRow <= endRow; currentRow++) {
 					for (var currentCol = startCol; currentCol <= endCol; currentCol++) {
-						console.log(currentCol + ", " + currentRow);
 						params.push(solveCell(getCell(currentRow * gridWidth + currentCol), currentRow * gridWidth + currentCol, cellReferences));
 					}
 				}
 			}
 		} else if (params[j].match(cell)) {
-			console.log("cell");
 			var cellIndex = alphabet.indexOf(params[j][0]) + (parseInt(params[j].substring(1, params[j].length))) * gridWidth;
-			console.log(cellIndex);
 			params[j] = solveCell(getCell(cellIndex), cellIndex, cellReferences);
 		} else if (params[j].match(num)) {
 
@@ -308,9 +299,7 @@ function solveEquation(equation, thisCell, cellReferences) {
 		}
 	}
 
-	// console.log(params);
 	var func = funcs[eqName];
-	// console.log(func);
 	var value = (func) ? func(params) : null;
 
 	return (value !== null) ? value : null;
@@ -338,7 +327,6 @@ function solveCell(equation, thisCell, cellReferences) {
 function click(e) {
 	var oldCellX = selectedCellX;
 	var oldCellY = selectedCellY;
-	console.log("click!");
 	var x;
 	var y;
 	if (e.pageX || e.pageY) {
@@ -351,12 +339,10 @@ function click(e) {
 	}
 	x -= c.offsetLeft;
 	y -= c.offsetTop;
-	console.log("(" + x.toString() + ", " + y.toString() + ")");
 	if (x >= cellWidth && y >= cellHeight * 2 && y <= cellHeight * (gridHeight + 2)) {
 		selectedCellX = Math.floor(x / cellWidth) - 1;
 		selectedCellY = Math.floor(y / cellHeight) - 2;
 	}
-	console.log(selectedCellX + ", " + selectedCellY);
 	if (oldCellX != selectedCellX || oldCellY != selectedCellY) {
 		cursorX = getSelectedCell().length;
 	}
@@ -413,10 +399,8 @@ function keydown(e) {
 	if (charCode === 17) {
 		ctrlDown = true;
 	}
-	// console.log("key down");
 	if (e.keyCode === 8 || e.keyCode === 46) {
 		e.preventDefault();
-		console.log("delete/backspace down");
 		var selectedCellValue = getSelectedCell();
 		setSelectedCell(selectedCellValue.substring(0, cursorX - 1) + selectedCellValue.substring(cursorX, selectedCellValue.length));
 		if (getSelectedCell() === "") {
@@ -425,10 +409,10 @@ function keydown(e) {
 			cursorX -= 1;
 		}
 		draw();
-	} else if(ctrlDown && charCode === 67) { // CTRL-C
-		clipboardCellIndex = selectedCellX+selectedCellY*gridWidth;
+	} else if (ctrlDown && charCode === 67) { // CTRL-C
+		clipboardCellIndex = selectedCellX + selectedCellY * gridWidth;
 		draw();
-	} else if(ctrlDown && charCode === 86) { // CTRL-V
+	} else if (ctrlDown && charCode === 86) { // CTRL-V
 		var params = [];
 		var eq = getCell(clipboardCellIndex);
 		var eqName = "";
@@ -436,38 +420,58 @@ function keydown(e) {
 		for (i = 1; i < eq.length && eq.charAt(i) !== "("; i++) {
 			eqName += eq.charAt(i);
 		}
-	
+
 		for (i = 2; i < eq.length && eq.charAt(i) !== "("; i++);
 		i++;
-	
+
 		while (i < eq.length && eq.charAt(i) !== ")") {
 			var buffer = "";
 			while (i < eq.length && eq.charAt(i) !== " " && eq.charAt(i) !== ")") {
 				buffer += eq.charAt(i);
 				i++;
 			}
-			// console.log(buffer);
 			params.push(buffer);
 			i++;
 		}
-		
-		var xDistance = selectedCellX-Math.floor(clipboardCellIndex/gridWidth);
-		var yDistance = selectedCellX-clipboardCellIndex%gridWidth;
-		
-		var newEq = eqName+"(";
-		for(var j=0; j<params.length; j++) {
-			if(params[j].match(/^[A-Z]+\d+$/)) {
-				newEq += _______;
+
+		var xDistance = selectedCellX - Math.floor(clipboardCellIndex / gridWidth);
+		var yDistance = selectedCellY - clipboardCellIndex % gridWidth;
+
+		var newEq = eqName + "(";
+		for (var j = 0; j < params.length; j++) {
+			if (params[j].match(/^[A-Z]+\d+$/)) {
+				newEq += alphabet[alphabet.indexOf(params[j].charAt(0)) + xDistance] + (parseInt(params[j].charAt(1)) + yDistance).toString();
+			} else if (params[j].match(/^\d+$/)) {
+				newEq += params[j];
+			} else if (params[j].match(/^[A-Z]+\d+\:[A-Z]+\d+$/)) {
+				alert("CELL ARRAY");
+				var startCol = alphabet.indexOf(params[j][0]) + xDistance;
+				var startRowStr = "";
+				var ii;
+				for (ii = 1; ii < params[j].length && params[j][ii] !== ':'; ii++) {
+					startRowStr += params[j][ii];
+				}
+				var startRow = parseInt(startRowStr) + yDistance;
+				ii++;
+				var endCol = alphabet.indexOf(params[j][ii]) + xDistance;
+				var endRowStr = "";
+				for (ii++; ii < params[j].length; ii++) {
+					endRowStr += params[j][ii];
+				}
+				var endRow = parseInt(endRowStr) + yDistance;
+
+				newEq += alphabet.charAt(startCol) + startRow.toString() + ":" + alphabet.charAt(endCol) + endRow.toString();
 			}
+
+			newEq += " ";
 		}
-		newEq = newEq.substr(0, newEq.length-1);
-		
+		newEq = "=" + newEq.substring(0, newEq.length - 1) + ")";
+
 		setSelectedCell(newEq);
-		
+
 		cursorX = getSelectedCell().length;
 		draw();
 	} else if (alphabet.indexOf(String.fromCharCode(charCode)) != -1 || getChar(charCode)) {
-		// console.log(charCode + " down");
 		if (getSelectedCell() === "0") {
 			setSelectedCell(getChar(charCode));
 		} else {
