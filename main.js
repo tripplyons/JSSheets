@@ -401,12 +401,16 @@ function keydown(e) {
 	}
 	if (e.keyCode === 8 || e.keyCode === 46) {
 		e.preventDefault();
-		var selectedCellValue = getSelectedCell();
-		setSelectedCell(selectedCellValue.substring(0, cursorX - 1) + selectedCellValue.substring(cursorX, selectedCellValue.length));
-		if (getSelectedCell() === "") {
+		if (ctrlDown) {
 			setSelectedCell("0");
 		} else {
-			cursorX -= 1;
+			var selectedCellValue = getSelectedCell();
+			setSelectedCell(selectedCellValue.substring(0, cursorX - 1) + selectedCellValue.substring(cursorX, selectedCellValue.length));
+			if (getSelectedCell() === "") {
+				setSelectedCell("0");
+			} else {
+				cursorX -= 1;
+			}
 		}
 		draw();
 	} else if (ctrlDown && charCode === 67) { // CTRL-C
