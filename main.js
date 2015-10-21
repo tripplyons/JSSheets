@@ -409,6 +409,7 @@ function keydown(e) {
 		e.preventDefault();
 		if (ctrlDown) {
 			setSelectedCell("0");
+			cursorX=1;
 		} else {
 			var selectedCellValue = getSelectedCell();
 			setSelectedCell(selectedCellValue.substring(0, cursorX - 1) + selectedCellValue.substring(cursorX, selectedCellValue.length));
