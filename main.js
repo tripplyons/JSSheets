@@ -162,18 +162,24 @@ function draw() {
 				ctx.strokeRect((col + 1) * cellWidth, (row + 2) * cellHeight, cellWidth, cellHeight);
 			}
 			ctx.fillStyle = "#000000";
-			var cellValue = (solveCell(cellEquations[row * gridWidth + col], row * gridWidth + col, []) !== null) ?
-				solveCell(cellEquations[row * gridWidth + col], row * gridWidth + col, []) :
-				"ERROR";
+			// equation.substring(1, equation.length);
+			var solved;
+			if(cellEquations[row * gridWidth + col].charAt(0) === "#") {
+				solved = cellEquations[row * gridWidth + col].substring(1, cellEquations[row * gridWidth + col].length);
+			} else {
+				solved = solveCell(cellEquations[row * gridWidth + col], row * gridWidth + col, []);
+			}
+			
+			var cellValue = (solved !== null)?solved:"ERROR";
 			if (cellValue.toString().length > 7) {
 				cellValue = cellValue.toString().substring(0, 7) + "_";
 			}
-			if (cellEquations[row * gridWidth + col].charAt(0) == "#") {	
+			if (cellEquations[row * gridWidth + col].charAt(0) == "#") {
 				ctx.fillStyle = "#2980b9";
-				ctx.fillText(cellValue, (col + 1) * cellWidth + 5, (row + 3) * cellHeight - 5);
-			} else {
-				ctx.fillText(cellValue, (col + 1) * cellWidth + 5, (row + 3) * cellHeight - 5);
+			} else if (solved === null) {
+				ctx.fillStyle = "#ff0000";
 			}
+			ctx.fillText(cellValue, (col + 1) * cellWidth + 5, (row + 3) * cellHeight - 5);
 		}
 	}
 
@@ -314,7 +320,7 @@ function solveCell(equation, thisCell, cellReferences) {
 	if (isANumber(equation)) {
 		return equation;
 	} else if (equation.charAt(0) === "#") {
-		return equation.substring(1, equation.length);
+		return null;
 	} else if (equation.charAt(0) === "=" && equation.substring(1, equation.length).match(/^[A-Z]+\d+$/)) {
 		return solveCell(getCell(parseInt(equation.substring(2, equation.length)) * gridWidth + alphabet.indexOf(equation.charAt(1)), parseInt(equation.substring(2, equation.length)) * gridWidth + alphabet.indexOf(equation.charAt(1)), cellReferences));
 	} else if (isSemiValidEquation(equation)) {
