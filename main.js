@@ -455,7 +455,6 @@ function keydown(e) {
 			} else if (params[j].match(/^\d+$/)) {
 				newEq += params[j];
 			} else if (params[j].match(/^[A-Z]+\d+\:[A-Z]+\d+$/)) {
-				alert("CELL ARRAY");
 				var startCol = alphabet.indexOf(params[j][0]) + xDistance;
 				var startRowStr = "";
 				var ii;
