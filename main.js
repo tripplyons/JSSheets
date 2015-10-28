@@ -423,60 +423,64 @@ function keydown(e) {
 		clipboardCellIndex = selectedCellX + selectedCellY * gridWidth;
 		draw();
 	} else if (ctrlDown && charCode === 86) { // CTRL-V
-		var params = [];
-		var eq = getCell(clipboardCellIndex);
-		var eqName = "";
-		var i;
-		for (i = 1; i < eq.length && eq.charAt(i) !== "("; i++) {
-			eqName += eq.charAt(i);
-		}
-
-		for (i = 2; i < eq.length && eq.charAt(i) !== "("; i++);
-		i++;
-
-		while (i < eq.length && eq.charAt(i) !== ")") {
-			var buffer = "";
-			while (i < eq.length && eq.charAt(i) !== " " && eq.charAt(i) !== ")") {
-				buffer += eq.charAt(i);
+		if(!isSemiValidEquation(getCell(clipboardCellIndex))) {
+			setSelectedCell(getCell(clipboardCellIndex));
+		} else {
+			var params = [];
+			var eq = getCell(clipboardCellIndex);
+			var eqName = "";
+			var i;
+			for (i = 1; i < eq.length && eq.charAt(i) !== "("; i++) {
+				eqName += eq.charAt(i);
+			}
+	
+			for (i = 2; i < eq.length && eq.charAt(i) !== "("; i++);
+			i++;
+	
+			while (i < eq.length && eq.charAt(i) !== ")") {
+				var buffer = "";
+				while (i < eq.length && eq.charAt(i) !== " " && eq.charAt(i) !== ")") {
+					buffer += eq.charAt(i);
+					i++;
+				}
+				params.push(buffer);
 				i++;
 			}
-			params.push(buffer);
-			i++;
-		}
-
-		var xDistance = selectedCellX - Math.floor(clipboardCellIndex / gridWidth);
-		var yDistance = selectedCellY - clipboardCellIndex % gridWidth;
-
-		var newEq = eqName + "(";
-		for (var j = 0; j < params.length; j++) {
-			if (params[j].match(/^[A-Z]+\d+$/)) {
-				newEq += alphabet[alphabet.indexOf(params[j].charAt(0)) + xDistance] + (parseInt(params[j].charAt(1)) + yDistance).toString();
-			} else if (params[j].match(/^\d+$/)) {
-				newEq += params[j];
-			} else if (params[j].match(/^[A-Z]+\d+\:[A-Z]+\d+$/)) {
-				var startCol = alphabet.indexOf(params[j][0]) + xDistance;
-				var startRowStr = "";
-				var ii;
-				for (ii = 1; ii < params[j].length && params[j][ii] !== ':'; ii++) {
-					startRowStr += params[j][ii];
+	
+			var xDistance = selectedCellX - Math.floor(clipboardCellIndex / gridWidth);
+			var yDistance = selectedCellY - clipboardCellIndex % gridWidth;
+	
+			var newEq = eqName + "(";
+			for (var j = 0; j < params.length; j++) {
+				if (params[j].match(/^[A-Z]+\d+$/)) {
+					newEq += alphabet[alphabet.indexOf(params[j].charAt(0)) + xDistance] + (parseInt(params[j].charAt(1)) + yDistance).toString();
+				} else if (params[j].match(/^\d+$/)) {
+					newEq += params[j];
+				} else if (params[j].match(/^[A-Z]+\d+\:[A-Z]+\d+$/)) {
+					var startCol = alphabet.indexOf(params[j][0]) + xDistance;
+					var startRowStr = "";
+					var ii;
+					for (ii = 1; ii < params[j].length && params[j][ii] !== ':'; ii++) {
+						startRowStr += params[j][ii];
+					}
+					var startRow = parseInt(startRowStr) + yDistance;
+					ii++;
+					var endCol = alphabet.indexOf(params[j][ii]) + xDistance;
+					var endRowStr = "";
+					for (ii++; ii < params[j].length; ii++) {
+						endRowStr += params[j][ii];
+					}
+					var endRow = parseInt(endRowStr) + yDistance;
+	
+					newEq += alphabet.charAt(startCol) + startRow.toString() + ":" + alphabet.charAt(endCol) + endRow.toString();
 				}
-				var startRow = parseInt(startRowStr) + yDistance;
-				ii++;
-				var endCol = alphabet.indexOf(params[j][ii]) + xDistance;
-				var endRowStr = "";
-				for (ii++; ii < params[j].length; ii++) {
-					endRowStr += params[j][ii];
-				}
-				var endRow = parseInt(endRowStr) + yDistance;
-
-				newEq += alphabet.charAt(startCol) + startRow.toString() + ":" + alphabet.charAt(endCol) + endRow.toString();
+	
+				newEq += " ";
 			}
-
-			newEq += " ";
+			newEq = "=" + newEq.substring(0, newEq.length - 1) + ")";
+	
+			setSelectedCell(newEq);
 		}
-		newEq = "=" + newEq.substring(0, newEq.length - 1) + ")";
-
-		setSelectedCell(newEq);
 
 		cursorX = getSelectedCell().length;
 		draw();
