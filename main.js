@@ -104,6 +104,7 @@ function clear() {
 		cellEquations.push("0");
 	}
 	cursorX = cellEquations[0].length;
+	draw();
 }
 
 function init() { clear(); }
