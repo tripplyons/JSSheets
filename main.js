@@ -98,20 +98,18 @@ var clipboardCellIndex = null;
 init();
 draw();
 
-function init() {
+function clear() {
 	cellEquations = [];
-	for (var row = 0; row < gridHeight; row++) {
-		for (var col = 0; col < gridWidth; col++) {
-			cellEquations.push("0");
-		}
+	while (cellEquations.length < gridWidth * gridHeight) {
+		cellEquations.push("0");
 	}
 	cursorX = cellEquations[0].length;
 }
 
+function init() { clear(); }
+
 function example() {
-	while (cellEquations.length < gridWidth * gridHeight) {
-		cellEquations.push("0");
-	}
+	clear();
 	cellEquations[0 * gridWidth + 0] = "#SHOPPING LIST";
 	cellEquations[0 * gridWidth + 1] = "#ITEM";
 	cellEquations[0 * gridWidth + 2] = "#PRICE";
